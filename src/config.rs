@@ -10,6 +10,7 @@ pub struct Config {
     pub ww_launcher_path: String,
     pub ww_launcher_name: String,
     pub ww_launcher_wait_time: f64,
+    pub ww_launcher_title: String,
 
     // common wait time
     pub wait_time_long: f64,
@@ -29,6 +30,7 @@ impl Default for Config {
             ww_launcher_path: "E:/Game/Wuthering Waves".to_string(),
             ww_launcher_name: "launcher.exe".to_string(),
             ww_launcher_wait_time: 5.0,
+            ww_launcher_title: "鸣潮".to_string(),
 
             wait_time_long: 5.0,
             wait_time: 2.0,

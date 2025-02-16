@@ -19,10 +19,14 @@ fn do_daily_task() {
     }
     task_println!("Today's task has not been executed. Start.");
 
-    start_ww_launcher_windows();
+    start_ww_launcher();
 
-    let _aah_wrapper = AahWrapper::new();
-    
+    let controller = PcControllerWrapper::new();
+
+    controller.output_all_windows();
+
+    controller.start_game();
+
     update_record_of_execution();
 
     task_println!("Daily task finished.");
@@ -30,8 +34,27 @@ fn do_daily_task() {
     // end_emulator();
 }
 
-impl AahWrapper {
-    
+impl PcControllerWrapper {
+    fn output_all_windows(&self) {
+        let windows = self.pc_controller.get_all_windows().unwrap();
+        println!("All Windows:");
+        for w in windows.iter() {
+            println!("\t{:?}", w);
+        }
+    }
+
+    fn start_game(&self) {
+        task_println!("Starting game.");
+
+        let pic = self.pc_controller.screencap().unwrap();
+        let target = open_image("start_game.png");
+
+        let (x, y) = template_match(&pic, &target);
+
+        println!("Clicking at ({}, {}).", x, y);
+
+        self.pc_controller.left_click(x, y).unwrap();
+    }
 }
 
 fn check_if_executed_today() -> bool {
@@ -63,8 +86,7 @@ fn get_input_from_stdin() -> String {
     input.trim().to_string()
 }
 
-fn start_ww_launcher_windows() {
-
+fn start_ww_launcher() {
     let ww_launcher_full_path = format!("{}/{}", get_config().ww_launcher_path, get_config().ww_launcher_name);
     let ww_launcher_full_path_with_quotes = format!("\"{}\"", ww_launcher_full_path);
 
