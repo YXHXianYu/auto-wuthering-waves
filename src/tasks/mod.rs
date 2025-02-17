@@ -1,4 +1,10 @@
-use std::io::{self, Read};
+mod base_actions;
+mod advanced_actions;
+
+pub use base_actions::*;
+pub use advanced_actions::*;
+
+use std::io;
 use anyhow::{Error, Ok};
 use crate::{error_println, prelude::*};
 use chrono::Local;
@@ -9,14 +15,13 @@ pub fn work() {
 
     if !is_admin() {
         error_println!("This tool should be run as administrator.");
-        press_any_key_to_continue();
+        press_enter_to_continue();
         return;
     }
 
     welcome_println!("This tool needs to occupy the screen / keyboard / mouse to work properly.");
     welcome_println!("And it should be run as administrator.");
     welcome_println!("Whats'more, remember to close the game before running this tool.");
-    press_any_key_to_continue();
 
     match do_daily_task() {
         Result::Ok(_) => {
@@ -28,7 +33,7 @@ pub fn work() {
         }
     };
 
-    press_any_key_to_continue();
+    press_enter_to_continue();
 }
 
 fn do_daily_task() -> Result<(), Error> {
@@ -38,26 +43,29 @@ fn do_daily_task() -> Result<(), Error> {
     }
     task_println!("Today's task has not been executed. Start.");
 
-    start_ww_launcher();
+    // start_ww_launcher();
 
     let controller = PcControllerWrapper::new();
+    // controller.output_all_windows()?;
+    // controller.start_game()?;
+    // controller.get_monthly_card_reward()?;
 
-    controller.output_all_windows()?;
+    // controller.fight()?;
+    sleep(5.0);
+    controller.search_and_go_to_the_target(
+        open_image("search_targets/reward/target.png"),
+        open_image("search_targets/reward/until.png"),
+    )?;
 
-    controller.start_game()?;
-
-    update_record_of_execution();
-
+    // update_record_of_execution();
     task_println!("Daily task finished.");
-
-    // end_emulator();
-
     Ok(())
 }
 
+#[allow(dead_code)]
 impl PcControllerWrapper {
     fn output_all_windows(&self) -> Result<(), Error> {
-        let windows = self.pc_controller.get_all_windows().unwrap();
+        let windows = self.get_all_windows()?;
         println!("All Windows:");
         for w in windows.iter() {
             println!("\t{:?}", w);
@@ -69,13 +77,25 @@ impl PcControllerWrapper {
         task_println!("Starting game.");
 
         task_println!("Clicking start game button.");
-        self.find_and_click("start_game_button.png")?;
-        sleep(get_config().game_start_wait_time);
+        self.fcuds("start_game_button.png", get_config().game_start_wait_time)?;
 
         task_println!("Clicking login button.");
-        self.find_and_click_until_default( "login_button.png")?;
+        match self.fcus( "login_button.png", get_config().retry_wait_time, 1, get_config().game_start_wait_time_2) {
+            Result::Ok(_) => task_println!("Login button found."),
+            Err(_) => task_println!("Login button not found. Assume already logged in."),
+        }
+
+        self.click_any_position_and_sleep(get_config().game_start_wait_time_3)?;
 
         task_println!("Game started.");
+        Ok(())
+    }
+
+    fn get_monthly_card_reward(&self) -> Result<(), Error> {
+        task_println!("Getting monthly card reward.");
+
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+
         Ok(())
     }
 }
@@ -102,11 +122,13 @@ fn update_record_of_execution() {
     Config::update(config).unwrap();
 }
 
-fn press_any_key_to_continue() {
-    println!("Press any key to continue...");
-    let _ = io::stdin().read_exact(&mut [0u8]).unwrap();
+fn press_enter_to_continue() {
+    println!("Press enter to continue...");
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
 }
 
+#[allow(dead_code)]
 fn get_input_from_stdin() -> String {
     println!("Waiting for your input: ");
     let mut input = String::new();
@@ -116,26 +138,10 @@ fn get_input_from_stdin() -> String {
 
 fn start_ww_launcher() {
     let ww_launcher_full_path = format!("{}/{}", get_config().ww_launcher_path, get_config().ww_launcher_name);
-    let ww_launcher_full_path_with_quotes = format!("\"{}\"", ww_launcher_full_path);
 
-    if cfg!(target_os = "windows") {
-        task_println!("Starting Wuthering Waves launcher in Windows platform. Use PowerShell for running as administrator!");
-        run_command_async(vec![
-            "powershell",
-            "-Command",
-            "Start-Process",
-            "-FilePath",
-            ww_launcher_full_path_with_quotes.as_str(),
-            "-Verb",
-            "runAs",
-        ]);
-    } else {
-        task_println!("Starting Wuthering Waves launcher in non-Windows platform.");
-        run_command_async(vec![
-            ww_launcher_full_path.as_str(),
-        ]);
-        return;
-    }
+    run_command_async(vec![
+        ww_launcher_full_path.as_str(),
+    ]);
 
     let wait_time = get_config().ww_launcher_wait_time;
     sleep(wait_time);

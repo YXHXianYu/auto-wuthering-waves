@@ -14,15 +14,28 @@ pub struct Config {
     
     // wait time
     pub game_start_wait_time: f64,
+    pub game_start_wait_time_2: f64,
+    pub game_start_wait_time_3: f64,
 
     // common wait time
     pub wait_time_long: f64,
     pub wait_time: f64,
     pub wait_time_short: f64,
+    pub wait_time_load_map: f64,
+    pub wait_time_tick: f64,
     
     // retry
     pub retry_wait_time: f64,
     pub retry_max_times: i32,
+
+    // search
+    pub search_max_times: i32,
+    pub search_dead_zone_x: f64,
+    pub search_dead_zone_y: f64,
+
+    // action
+    pub turn_sensitive: f64,
+    pub move_wait_time: f64,
 
     // record
     pub record_of_execution: Vec<String>,
@@ -39,14 +52,25 @@ impl Default for Config {
             ww_launcher_wait_time: 5.0,
             ww_launcher_title: "鸣潮".to_string(),
 
-            game_start_wait_time: 40.0,
+            game_start_wait_time: 39.0,
+            game_start_wait_time_2: 5.0,
+            game_start_wait_time_3: 15.0,
 
             wait_time_long: 5.0,
             wait_time: 2.0,
-            wait_time_short: 1.0,
+            wait_time_short: 0.5,
+            wait_time_load_map: 13.0,
+            wait_time_tick: 0.05,
 
             retry_wait_time: 5.0,
             retry_max_times: 3,
+
+            search_max_times: 100,
+            search_dead_zone_x: 0.15,
+            search_dead_zone_y: 0.15,
+
+            turn_sensitive: 0.1, // %
+            move_wait_time: 0.5,
 
             record_of_execution: vec![],
         }
