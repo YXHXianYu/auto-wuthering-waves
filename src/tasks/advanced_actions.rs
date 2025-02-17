@@ -8,6 +8,19 @@ type R = Result<(), Error>;
 #[allow(dead_code)]
 impl PcControllerWrapper {
 
+    pub fn collect_pass_daily_tasks_rewards(&self) -> R {
+        controller_println!("Collecting pass daily tasks rewards");
+
+        self.open_pioneer_podcast()?;
+        sleep(get_config().wait_time);
+        self.fcuds("pass/tab_2.png", get_config().wait_time)?;
+        self.fcuds("pass/get.png", get_config().wait_time)?;
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+
+        Ok(())
+    }
+
     pub fn collect_daily_tasks_rewards(&self) -> R {
         controller_println!("Collecting daily tasks rewards");
 

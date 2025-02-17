@@ -49,10 +49,12 @@ fn do_daily_task() -> Result<(), Error> {
 
     controller.start_game()?;
     controller.get_monthly_card_reward()?;
+    controller.heal_myself()?;
     controller.collect_character_exp()?;
     controller.collect_character_exp()?;
     controller.collect_weapon_exp()?;
     controller.collect_daily_tasks_rewards()?;
+    controller.collect_pass_daily_tasks_rewards()?;
 
     update_record_of_execution();
     task_println!("Daily task finished.");
