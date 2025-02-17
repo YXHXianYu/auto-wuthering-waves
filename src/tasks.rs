@@ -1,21 +1,40 @@
 use std::io::{self, Read};
-use crate::prelude::*;
+use anyhow::{Error, Ok};
+use crate::{error_println, prelude::*};
 use chrono::Local;
 use crate::{task_println, welcome_println};
 
 pub fn work() {
     welcome_println!("Welcome to auto-wuthering-waves!");
 
-    do_daily_task();
+    if !is_admin() {
+        error_println!("This tool should be run as administrator.");
+        press_any_key_to_continue();
+        return;
+    }
 
-    println!("Press any key to continue...");
-    let _ = io::stdin().read_exact(&mut [0u8]).unwrap();
+    welcome_println!("This tool needs to occupy the screen / keyboard / mouse to work properly.");
+    welcome_println!("And it should be run as administrator.");
+    welcome_println!("Whats'more, remember to close the game before running this tool.");
+    press_any_key_to_continue();
+
+    match do_daily_task() {
+        Result::Ok(_) => {
+            welcome_println!("Task finished successfully.");
+        }
+        Err(e) => {
+            error_println!("Task failed: {:?}", e);
+            sleep(10.0); // 10 seconds
+        }
+    };
+
+    press_any_key_to_continue();
 }
 
-fn do_daily_task() {
+fn do_daily_task() -> Result<(), Error> {
     if check_if_executed_today() {
         task_println!("Today's task has been executed. Skip.");
-        return;
+        return Ok(());
     }
     task_println!("Today's task has not been executed. Start.");
 
@@ -23,37 +42,41 @@ fn do_daily_task() {
 
     let controller = PcControllerWrapper::new();
 
-    controller.output_all_windows();
+    controller.output_all_windows()?;
 
-    controller.start_game();
+    controller.start_game()?;
 
     update_record_of_execution();
 
     task_println!("Daily task finished.");
 
     // end_emulator();
+
+    Ok(())
 }
 
 impl PcControllerWrapper {
-    fn output_all_windows(&self) {
+    fn output_all_windows(&self) -> Result<(), Error> {
         let windows = self.pc_controller.get_all_windows().unwrap();
         println!("All Windows:");
         for w in windows.iter() {
             println!("\t{:?}", w);
         }
+        Ok(())
     }
 
-    fn start_game(&self) {
+    fn start_game(&self) -> Result<(), Error> {
         task_println!("Starting game.");
 
-        let pic = self.pc_controller.screencap().unwrap();
-        let target = open_image("start_game.png");
+        task_println!("Clicking start game button.");
+        self.find_and_click("start_game_button.png")?;
+        sleep(get_config().game_start_wait_time);
 
-        let (x, y) = template_match(&pic, &target);
+        task_println!("Clicking login button.");
+        self.find_and_click_until_default( "login_button.png")?;
 
-        println!("Clicking at ({}, {}).", x, y);
-
-        self.pc_controller.left_click(x, y).unwrap();
+        task_println!("Game started.");
+        Ok(())
     }
 }
 
@@ -77,6 +100,11 @@ fn update_record_of_execution() {
     let mut config = get_config();
     config.record_of_execution.push(today);
     Config::update(config).unwrap();
+}
+
+fn press_any_key_to_continue() {
+    println!("Press any key to continue...");
+    let _ = io::stdin().read_exact(&mut [0u8]).unwrap();
 }
 
 fn get_input_from_stdin() -> String {

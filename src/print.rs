@@ -8,9 +8,9 @@ macro_rules! command_println {
 
 // adb <=> blue
 #[macro_export]
-macro_rules! adb_println {
+macro_rules! controller_println {
     ($($arg:tt)*) => {{
-        ::color_print::cprintln!("<b>[ADB Wrapper]  </b>: {}", format!($($arg)*))
+        ::color_print::cprintln!("<b>[Controller]   </b>: {}", format!($($arg)*))
     }};
 }
 
@@ -35,5 +35,13 @@ macro_rules! welcome_println {
 macro_rules! error_println {
     ($($arg:tt)*) => {{
         ::color_print::cprintln!("<r>[Error]        </r>: {}", format!($($arg)*))
+    }};
+}
+
+// warning <=> orange
+#[macro_export]
+macro_rules! warning_println {
+    ($($arg:tt)*) => {{
+        ::color_print::cprintln!("<o>[Warning]      </o>: {}", format!($($arg)*))
     }};
 }

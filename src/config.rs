@@ -11,11 +11,18 @@ pub struct Config {
     pub ww_launcher_name: String,
     pub ww_launcher_wait_time: f64,
     pub ww_launcher_title: String,
+    
+    // wait time
+    pub game_start_wait_time: f64,
 
     // common wait time
     pub wait_time_long: f64,
     pub wait_time: f64,
     pub wait_time_short: f64,
+    
+    // retry
+    pub retry_wait_time: f64,
+    pub retry_max_times: i32,
 
     // record
     pub record_of_execution: Vec<String>,
@@ -32,9 +39,14 @@ impl Default for Config {
             ww_launcher_wait_time: 5.0,
             ww_launcher_title: "鸣潮".to_string(),
 
+            game_start_wait_time: 40.0,
+
             wait_time_long: 5.0,
             wait_time: 2.0,
             wait_time_short: 1.0,
+
+            retry_wait_time: 5.0,
+            retry_max_times: 3,
 
             record_of_execution: vec![],
         }

@@ -5,7 +5,7 @@ use aah_cv::template_matching::{find_matches, match_template, MatchTemplateMetho
 use image::DynamicImage;
 
 
-pub fn template_match(image: &DynamicImage, template: &DynamicImage) -> (i32, i32) {
+pub fn template_match(image: &DynamicImage, template: &DynamicImage) -> Option<(i32, i32)> {
     let res = match_template(
         &image.to_luma32f(),
         &template.to_luma32f(),
@@ -21,11 +21,14 @@ pub fn template_match(image: &DynamicImage, template: &DynamicImage) -> (i32, i3
         0.9
     );
 
-    assert!(!matches.is_empty());
+    if matches.is_empty() {
+        return None;
+    }
 
     let ans = matches.first().unwrap().clone().location;
+    let ans = ((ans.0 + template.width() / 2) as i32, (ans.1 + template.height() / 2) as i32);
 
-    ((ans.0 + template.width() / 2) as i32, (ans.1 + template.height() / 2) as i32)
+    Some(ans)
 }
 
 pub fn open_image(path: &str) -> DynamicImage {
