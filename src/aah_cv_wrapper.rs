@@ -35,8 +35,11 @@ pub fn template_match(image: &DynamicImage, template: &DynamicImage) -> Option<(
     Some(ans)
 }
 
-pub fn open_image(path: &str) -> DynamicImage {
-    image::open(get_assets_dir().join(path)).unwrap()
+pub fn open_image(path: &str) -> Result<DynamicImage, anyhow::Error> {
+    match image::open(get_assets_dir().join(path)) {
+        Ok(image) => Ok(image),
+        Err(e) => Err(anyhow::anyhow!("Failed to open image: {}", e))
+    }
 }
 
 fn get_assets_dir() -> PathBuf {

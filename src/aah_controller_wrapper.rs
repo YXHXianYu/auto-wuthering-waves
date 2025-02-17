@@ -29,7 +29,7 @@ impl PcControllerWrapper {
     }
 
     pub fn find_and_click(&self, str: &str) -> Result<(), Error> {
-        let target = open_image(str);
+        let target = open_image(str)?;
         let ans = self.find(target);
         match ans {
             Ok((x, y, _)) => {

@@ -13,8 +13,8 @@ mod test {
         // let tar = open_image("login_button.png");
         // let picture = open_image("screencap.png");
     
-        let tar = open_image("start_game_button.png");
-        let picture = open_image("screencap3.png");
+        let tar = open_image("start_game_button.png").unwrap();
+        let picture = open_image("screencap3.png").unwrap();
     
         let res = template_match(&picture, &tar);
     

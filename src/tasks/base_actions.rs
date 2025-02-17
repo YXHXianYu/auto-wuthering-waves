@@ -155,4 +155,10 @@ impl PcControllerWrapper {
         Ok(())
     }
 
+    pub fn press_escape(&self) -> Result<(), Error> {
+        controller_println!("Pressing escape");
+        self.pc_controller.key_click(Key::Escape)?;
+        Ok(())
+    }
+
 }

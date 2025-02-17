@@ -43,21 +43,18 @@ fn do_daily_task() -> Result<(), Error> {
     }
     task_println!("Today's task has not been executed. Start.");
 
-    // start_ww_launcher();
+    start_ww_launcher();
 
     let controller = PcControllerWrapper::new();
-    // controller.output_all_windows()?;
-    // controller.start_game()?;
-    // controller.get_monthly_card_reward()?;
 
-    // controller.fight()?;
-    sleep(5.0);
-    controller.search_and_go_to_the_target(
-        open_image("search_targets/reward/target.png"),
-        open_image("search_targets/reward/until.png"),
-    )?;
+    controller.start_game()?;
+    controller.get_monthly_card_reward()?;
+    controller.collect_character_exp()?;
+    controller.collect_character_exp()?;
+    controller.collect_weapon_exp()?;
+    controller.collect_daily_tasks_rewards()?;
 
-    // update_record_of_execution();
+    update_record_of_execution();
     task_println!("Daily task finished.");
     Ok(())
 }
