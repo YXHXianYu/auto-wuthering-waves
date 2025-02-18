@@ -80,7 +80,7 @@ impl PcControllerWrapper {
 
     pub fn click_any_position_and_sleep(&self, wait_time: f64) -> Result<(), Error> {
         let (width, height) = self.pc_controller.screen_size();
-        self.pc_controller.left_click((width / 2) as i32, (height / 2) as i32)?;
+        self.pc_controller.left_click((width / 2) as i32, (height as f64 * 0.8) as i32)?;
         sleep(wait_time);
         Ok(())
     }

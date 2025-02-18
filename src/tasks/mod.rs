@@ -1,9 +1,6 @@
 mod base_actions;
 mod advanced_actions;
 
-pub use base_actions::*;
-pub use advanced_actions::*;
-
 use std::io;
 use anyhow::{Error, Ok};
 use crate::{error_println, prelude::*};
@@ -93,6 +90,8 @@ impl PcControllerWrapper {
     fn get_monthly_card_reward(&self) -> Result<(), Error> {
         task_println!("Getting monthly card reward.");
 
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+        self.click_any_position_and_sleep(get_config().wait_time)?;
         self.click_any_position_and_sleep(get_config().wait_time)?;
 
         Ok(())

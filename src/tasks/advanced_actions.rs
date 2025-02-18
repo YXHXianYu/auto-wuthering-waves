@@ -1,3 +1,4 @@
+use aah_controller::PcControllerTrait;
 use anyhow::{anyhow, Error};
 use image::DynamicImage;
 use crate::{controller_println, prelude::*};
@@ -26,8 +27,14 @@ impl PcControllerWrapper {
 
         self.open_guidebook()?;
         sleep(get_config().wait_time);
-        for _ in 0..4 {
-            let _ = self.find_and_click("guidebook/collect_daily_rewards_button_1.png");
+        for _ in 0..5 {
+            match self.find(open_image("guidebook/collect_daily_rewards_button_1.png")?) {
+                Ok(_) => {
+
+                },
+                Err(_) => { break; },
+            };
+            
             sleep(get_config().wait_time_short);
         }
         self.fcuds("guidebook/collect_daily_rewards_button_2.png", get_config().wait_time)?;
@@ -86,6 +93,10 @@ impl PcControllerWrapper {
     pub fn simulation_playground_common_action(&self) -> R {
         self.fcuds("simulation_playground_start_button.png", get_config().wait_time_long)?;
         self.fcuds("simulation_playground_start_button_2.png", get_config().wait_time_long)?;
+
+        // run mode
+        self.switch_to_run_mode()?;
+
         for _ in 0..3 {
             self.move_forward()?;
             sleep(get_config().wait_time_short);
@@ -210,17 +221,75 @@ impl PcControllerWrapper {
         Ok(())
     }
 
+    pub fn complete_synthesis_once(&self) -> R {
+        const COMPLETE_SYNTHESIS_ONCE_MATCH_THRESHOLD: f32 = 0.001;
+
+        controller_println!("Completing synthesis once");
+
+        self.open_guidebook()?;
+        sleep(get_config().wait_time);
+
+        for _ in 0..4 {
+            // 滑动每日任务表，试图找到"合成"任务
+            PcControllerTrait::swipe(
+                self.pc_controller.as_ref(),
+                1010,
+                675,
+                1010,
+                200,
+                2.0,
+            )?;
+
+            // 尝试匹配
+            match self.find(open_image("guidebook/complete_synthesis_once.png")?) {
+                Ok((_, y, v)) => {
+                    if v > COMPLETE_SYNTHESIS_ONCE_MATCH_THRESHOLD { continue; }
+                    self.click(1673, y)?;
+                    break;
+                },
+                Err(_) => { continue; },
+            };
+        }
+
+        self.fcuds("map/QianWang.png", get_config().wait_time)?;
+        self.fcuds("map/QueRen.png", get_config().wait_time)?;
+        self.pc_controller.move_mouse_absolute(1, 1)?;
+        sleep(get_config().wait_time_short);
+        let _ = self.fcus("map/QueRen.png", 0.0, 1, get_config().wait_time);
+        sleep(get_config().wait_time_load_map);
+
+        self.switch_to_run_mode()?;
+
+        for _ in 0..12 {
+            self.move_forward()?;
+            sleep(get_config().wait_time_short);
+        }
+        sleep(get_config().wait_time);
+        self.search_and_go_to_the_target(
+            open_image("search_targets/synthesis/target.png")?,
+            open_image("search_targets/synthesis/until.png")?
+        )?;
+        self.interact()?;
+        sleep(get_config().wait_time);
+        self.fcuds("sub_ui/synthesis_start.png", get_config().wait_time)?;
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+
+        Ok(())
+    }
+
     pub fn complete_daily_task(&self) -> R {
         unimplemented!("每日任务种类太多，需要索敌，无法实现自动化");
 
-        controller_println!("Completing daily task");
+        // controller_println!("Completing daily task");
         
-        self.open_guidebook()?;
-        sleep(get_config().wait_time);
-        self.click(1673, 356)?;
-        sleep(get_config().wait_time);
-        self.guidebook_confirm()?;
-        // TODO: 每日任务种类太多，需要索敌，无法实现自动化
+        // self.open_guidebook()?;
+        // sleep(get_config().wait_time);
+        // self.click(1673, 356)?;
+        // sleep(get_config().wait_time);
+        // self.guidebook_confirm()?;
+        // // TODO: 每日任务种类太多，需要索敌，无法实现自动化
 
         Ok(())
     }
@@ -230,6 +299,42 @@ impl PcControllerWrapper {
         
         self.fcuds("complete_daily_task_button_1.png", get_config().wait_time)?;
         self.fcuds("complete_daily_task_button_2.png", get_config().wait_time_load_map)?;
+
+        Ok(())
+    }
+
+    pub fn back_to_default_ui(&self) -> R {
+        controller_println!("Back to default UI");
+
+        for _ in 0..3 {
+            let res = self.find(open_image("main_menu.png")?);
+
+            self.press_escape()?;
+            sleep(get_config().wait_time);
+
+            if res.is_ok() {
+                break;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn switch_to_run_mode(&self) -> R {
+        const SWITCH_TO_RUN_MODE_MATCH_THRESHOLD: f32 = 0.05;
+
+        controller_println!("Switch to run mode");
+
+        self.click_ctrl()?;
+        sleep(get_config().wait_time_short);
+        for _ in 0..10 {
+            if self.find(open_image("other/BenPao.png")?)
+                    .is_ok_and(|(_, _, v)| v < SWITCH_TO_RUN_MODE_MATCH_THRESHOLD) {
+                break;
+            }
+            self.click_ctrl()?;
+            sleep(get_config().wait_time_short);
+        }
 
         Ok(())
     }

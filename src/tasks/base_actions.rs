@@ -161,4 +161,10 @@ impl PcControllerWrapper {
         Ok(())
     }
 
+    pub fn click_ctrl(&self) -> Result<(), Error> {
+        controller_println!("Clicking ctrl");
+        self.pc_controller.key_click(Key::Control)?;
+        Ok(())
+    }
+
 }

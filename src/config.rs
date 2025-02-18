@@ -39,6 +39,7 @@ pub struct Config {
     // action
     pub turn_sensitive: f64,
     pub move_wait_time: f64,
+    pub swipe_time: f64,
 
     // record
     pub record_of_execution: Vec<String>,
@@ -69,13 +70,14 @@ impl Default for Config {
             retry_max_times: 3,
 
             search_max_times: 100,
-            search_dead_zone_x: 0.15,
+            search_dead_zone_x: 0.10,
             search_dead_zone_y: 0.15,
 
             fight_max_rounds: 20,
 
-            turn_sensitive: 0.1, // %
+            turn_sensitive: 0.07, // %
             move_wait_time: 0.5,
+            swipe_time: 0.5,
 
             record_of_execution: vec![],
         }
