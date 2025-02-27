@@ -9,6 +9,46 @@ type R = Result<(), Error>;
 #[allow(dead_code)]
 impl PcControllerWrapper {
 
+    pub fn use_arbitrary_prop(&self) -> R {
+        controller_println!("Using arbitrary prop");
+
+        self.open_backpack()?;
+        sleep(get_config().wait_time);
+        self.fcuds("backpack/tab_3.png", get_config().wait_time)?;
+        self.fcuds("backpack/ChuJiYingYangKuai.png", get_config().wait_time)?;
+        self.fcuds("backpack/UseButton.png", get_config().wait_time)?;
+        self.fcuds("backpack/QueDing.png", get_config().wait_time)?;
+        self.fcuds("backpack/QueRen.png", get_config().wait_time)?;
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+        self.fcuds("backpack/tab_1.png", get_config().wait_time)?;
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+
+        Ok(())
+    }
+
+    pub fn use_stamina_prop(&self) -> R {
+        controller_println!("Using stamina prop");
+
+        self.open_map()?;
+        sleep(get_config().wait_time);
+        self.fcuds("map/PlusLogo.png", get_config().wait_time)?;
+        self.fcuds("map/StaminaPropLogo.png", get_config().wait_time)?;
+        self.fcuds("map/QueRen2.png", get_config().wait_time)?;
+        self.fcuds("map/MaxButton.png", get_config().wait_time)?;
+        self.fcuds("map/QueDing.png", get_config().wait_time)?;
+
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+
+        Ok(())
+    }
+
     pub fn collect_pass_daily_tasks_rewards(&self) -> R {
         controller_println!("Collecting pass daily tasks rewards");
 
@@ -16,6 +56,17 @@ impl PcControllerWrapper {
         sleep(get_config().wait_time);
         self.fcuds("pass/tab_2.png", get_config().wait_time)?;
         self.fcuds("pass/get.png", get_config().wait_time)?;
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+        self.fcuds("pass/tab_1.png", get_config().wait_time)?;
+        match self.find(open_image("pass/YiJianLingQu.png")?) {
+            Ok((x, y, _)) => {
+                self.click(x, y)?;
+                sleep(get_config().wait_time);
+            },
+            Err(_) => {},
+        };
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+
         self.press_escape()?;
         sleep(get_config().wait_time);
 
@@ -23,20 +74,24 @@ impl PcControllerWrapper {
     }
 
     pub fn collect_daily_tasks_rewards(&self) -> R {
+        const COLLECT_DAILY_TASKS_REWARDS_MATCH_THRESHOLD: f32 = 0.08;
         controller_println!("Collecting daily tasks rewards");
 
         self.open_guidebook()?;
         sleep(get_config().wait_time);
         for _ in 0..5 {
             match self.find(open_image("guidebook/collect_daily_rewards_button_1.png")?) {
-                Ok(_) => {
-
+                Ok((x, y, v)) => {
+                    if v > COLLECT_DAILY_TASKS_REWARDS_MATCH_THRESHOLD { break; }
+                    self.click(x, y)?;
+                    sleep(get_config().wait_time);
                 },
                 Err(_) => { break; },
             };
             
             sleep(get_config().wait_time_short);
         }
+        sleep(get_config().wait_time);
         self.fcuds("guidebook/collect_daily_rewards_button_2.png", get_config().wait_time)?;
         self.press_escape()?;
         sleep(get_config().wait_time);
@@ -245,6 +300,7 @@ impl PcControllerWrapper {
                 Ok((_, y, v)) => {
                     if v > COMPLETE_SYNTHESIS_ONCE_MATCH_THRESHOLD { continue; }
                     self.click(1673, y)?;
+                    sleep(get_config().wait_time);
                     break;
                 },
                 Err(_) => { continue; },
@@ -272,7 +328,9 @@ impl PcControllerWrapper {
         self.interact()?;
         sleep(get_config().wait_time);
         self.fcuds("sub_ui/synthesis_start.png", get_config().wait_time)?;
+        sleep(get_config().wait_time);
         self.click_any_position_and_sleep(get_config().wait_time)?;
+        sleep(get_config().wait_time);
         self.press_escape()?;
         sleep(get_config().wait_time);
 

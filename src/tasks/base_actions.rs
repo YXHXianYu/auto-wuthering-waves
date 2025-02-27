@@ -125,6 +125,12 @@ impl PcControllerWrapper {
         Ok(())
     }
 
+    pub fn open_backpack(&self) -> Result<(), Error> {
+        controller_println!("Opening backpack");
+        self.pc_controller.key_click(Key::B)?;
+        Ok(())
+    }
+
     pub fn open_events(&self) -> Result<(), Error> {
         controller_println!("Opening events");
         self.pc_controller.key_click(Key::F1)?;

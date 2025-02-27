@@ -11,14 +11,19 @@ pub fn work() {
     welcome_println!("Welcome to auto-wuthering-waves!");
 
     if !is_admin() {
-        error_println!("This tool should be run as administrator.");
-        press_enter_to_continue();
+        run_myself_as_admin();
+        println!("Auto run as admin.");
+        sleep(5.0);
         return;
     }
 
     welcome_println!("This tool needs to occupy the screen / keyboard / mouse to work properly.");
     welcome_println!("And it should be run as administrator.");
     welcome_println!("Whats'more, remember to close the game before running this tool.");
+    welcome_println!("");
+    welcome_println!("Press enter to continue...");
+    press_enter_to_continue();
+    sleep(5.0); // 5 seconds
 
     match do_daily_task() {
         Result::Ok(_) => {
@@ -48,8 +53,12 @@ fn do_daily_task() -> Result<(), Error> {
     controller.get_monthly_card_reward()?;
     controller.heal_myself()?;
     controller.collect_character_exp()?;
+    controller.use_stamina_prop()?;
     controller.collect_character_exp()?;
+    controller.heal_myself()?;
     controller.collect_weapon_exp()?;
+    controller.use_arbitrary_prop()?;
+    controller.complete_synthesis_once()?;
     controller.collect_daily_tasks_rewards()?;
     controller.collect_pass_daily_tasks_rewards()?;
 
