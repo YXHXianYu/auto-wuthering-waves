@@ -58,6 +58,7 @@ fn do_daily_task() -> Result<(), Error> {
     controller.heal_myself()?;
     controller.collect_weapon_exp()?;
     controller.use_arbitrary_prop()?;
+    controller.upgrade_weapon()?;
     controller.complete_synthesis_once()?;
     controller.collect_daily_tasks_rewards()?;
     controller.collect_pass_daily_tasks_rewards()?;
@@ -82,7 +83,9 @@ impl PcControllerWrapper {
         task_println!("Starting game.");
 
         task_println!("Clicking start game button.");
-        self.fcuds("start_game_button.png", get_config().game_start_wait_time)?;
+        // self.fcuds("start_game_button.png", get_config().game_start_wait_time)?;
+        self.click(1327, 750)?;
+        sleep(get_config().game_start_wait_time);
 
         task_println!("Clicking login button.");
         match self.fcus( "login_button.png", get_config().retry_wait_time, 1, get_config().game_start_wait_time_2) {
@@ -99,6 +102,8 @@ impl PcControllerWrapper {
     fn get_monthly_card_reward(&self) -> Result<(), Error> {
         task_println!("Getting monthly card reward.");
 
+        self.click_any_position_and_sleep(get_config().wait_time)?;
+        self.click_any_position_and_sleep(get_config().wait_time)?;
         self.click_any_position_and_sleep(get_config().wait_time)?;
         self.click_any_position_and_sleep(get_config().wait_time)?;
         self.click_any_position_and_sleep(get_config().wait_time)?;

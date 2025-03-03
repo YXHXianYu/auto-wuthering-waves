@@ -58,7 +58,7 @@ impl Default for Config {
 
             game_start_wait_time: 41.0,
             game_start_wait_time_2: 8.0,
-            game_start_wait_time_3: 20.0,
+            game_start_wait_time_3: 35.0,
 
             wait_time_long: 5.0,
             wait_time: 2.0,

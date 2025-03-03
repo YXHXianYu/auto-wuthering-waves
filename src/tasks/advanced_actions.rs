@@ -1,13 +1,56 @@
 use aah_controller::PcControllerTrait;
 use anyhow::{anyhow, Error};
 use image::DynamicImage;
-use crate::{controller_println, prelude::*};
+use crate::{controller_println, prelude::*, sleep};
 
 // simplify R
 type R = Result<(), Error>;
 
 #[allow(dead_code)]
 impl PcControllerWrapper {
+
+    pub fn upgrade_weapon(&self) -> R {
+        controller_println!("Upgrading weapon");
+
+        self.open_backpack()?;
+        sleep(get_config().wait_time);
+
+        self.click(420, 990)?;
+        sleep(get_config().wait_time);
+
+        self.click(395, 840)?;
+        sleep(get_config().wait_time);
+
+        self.click(867, 982)?;
+        sleep(get_config().wait_time);
+
+        self.click(1217, 932)?;
+        sleep(get_config().wait_time_short);
+
+        self.click(1115, 633)?;
+        sleep(get_config().wait_time);
+
+        self.fcuds("backpack/UpgradeWeapon_PeiYang.png", get_config().wait_time)?;
+
+        self.click(246, 838)?;
+        sleep(get_config().wait_time);
+
+        self.fcuds("backpack/UpgradeWeapon_Level2Material.png", get_config().wait_time)?;
+
+        self.click(261, 486)?;
+        sleep(get_config().wait_time);
+
+        self.fcuds("backpack/UpgradeWeapon_QiangHua.png", get_config().wait_time)?;
+
+        self.click_any_position_and_sleep(get_config().wait_time)?;        
+
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+        self.press_escape()?;
+        sleep(get_config().wait_time);
+
+        Ok(())
+    }
 
     pub fn use_arbitrary_prop(&self) -> R {
         controller_println!("Using arbitrary prop");
@@ -172,6 +215,8 @@ impl PcControllerWrapper {
         self.fcuds("simulation_playground_collect_reward.png", get_config().wait_time)?;
         self.fcuds("simulation_playground_exit.png", get_config().wait_time_load_map)?;
 
+        sleep(get_config().wait_time_long);
+
         Ok(())
     }
 
@@ -284,6 +329,7 @@ impl PcControllerWrapper {
         self.open_guidebook()?;
         sleep(get_config().wait_time);
 
+        let mut result = false;
         for _ in 0..4 {
             // 滑动每日任务表，试图找到"合成"任务
             PcControllerTrait::swipe(
@@ -301,10 +347,16 @@ impl PcControllerWrapper {
                     if v > COMPLETE_SYNTHESIS_ONCE_MATCH_THRESHOLD { continue; }
                     self.click(1673, y)?;
                     sleep(get_config().wait_time);
+                    result = true;
                     break;
                 },
                 Err(_) => { continue; },
             };
+        }
+
+        if !result {
+            controller_println!("Not found synthesis task.");
+            return Ok(());
         }
 
         self.fcuds("map/QianWang.png", get_config().wait_time)?;
