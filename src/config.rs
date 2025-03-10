@@ -56,7 +56,7 @@ impl Default for Config {
             ww_launcher_wait_time: 5.0,
             ww_launcher_title: "鸣潮".to_string(),
 
-            game_start_wait_time: 41.0,
+            game_start_wait_time: 50.0,
             game_start_wait_time_2: 8.0,
             game_start_wait_time_3: 35.0,
 

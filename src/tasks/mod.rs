@@ -108,6 +108,8 @@ impl PcControllerWrapper {
         self.click_any_position_and_sleep(get_config().wait_time)?;
         self.click_any_position_and_sleep(get_config().wait_time)?;
 
+        sleep(get_config().wait_time_long);
+
         Ok(())
     }
 }
@@ -158,5 +160,12 @@ fn start_ww_launcher() {
     let wait_time = get_config().ww_launcher_wait_time;
     sleep(wait_time);
 
-    task_println!("{} seconds passed. Wuthering Waves launcher is launched.", wait_time);
+    run_command_async(vec![
+        ww_launcher_full_path.as_str(),
+    ]);
+
+    let wait_time = get_config().ww_launcher_wait_time;
+    sleep(wait_time);
+
+    task_println!("2 * {} seconds passed. Wuthering Waves launcher is launched.", wait_time);
 }
